@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# VS Code
+.vscode/
+
+# Backend (Spring Boot)
+finvault-backend/target/
+*.log
+
+# Frontend (React/Vite)
+finvault-frontend/node_modules/
+finvault-frontend/dist/
+
+# Env / secrets
+.env
+*.env
+application.properties
+
+# IDE
+.idea/
