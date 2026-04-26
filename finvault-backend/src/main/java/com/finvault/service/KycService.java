@@ -42,14 +42,21 @@ public class KycService {
     return kycRepository.findByUserId(user.getId())
             .orElseThrow(() -> new RuntimeException("KYC not submitted"));
 }
-    public Kyc approveKyc(String kycId){
-        Kyc kyc = kycRepository.findById(kycId)
-        .orElseThrow(() -> new RuntimeException("KYC not found"));
-        kyc.setStatus("VERIFIED");
+   public Kyc approveKyc(String kycId) {
 
-        return kycRepository.save(kyc);
+    Kyc kyc = kycRepository.findById(kycId)
+            .orElseThrow(() -> new RuntimeException("KYC not found"));
 
-    }
+    kyc.setStatus("VERIFIED");
+
+    User user = userRepository.findById(kyc.getUserId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    user.setKycStatus("VERIFIED");
+    userRepository.save(user);
+
+    return kycRepository.save(kyc);
+}
     public Kyc rejectKyc(String kycId, String reason){
         
         Kyc kyc = kycRepository.findById(kycId)
