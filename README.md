@@ -1,11 +1,3 @@
-<div align="center">
-
-<img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Java-Spring%20Boot-green?style=for-the-badge&logo=springboot" />
-<img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react" />
-<img src="https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb" />
-
-<br/><br/>
 
 # FinVault
 
@@ -118,20 +110,55 @@ KYC verification → gates payment access → payments auto-post to the finance 
 
 ```
 FinVault/
+│
 ├── finvault-backend/
 │   ├── src/
-│   │   ├── main/java/com/finvault/
-│   │   │   ├── auth/          # JWT config, filters, token service
-│   │   │   ├── user/          # User entity, roles, repository
-│   │   │   ├── kyc/           # KYC submission, status workflow, audit log
-│   │   │   ├── payments/      # Transaction lifecycle, fraud rules
-│   │   │   ├── finance/       # Ledger entries, split logic, reports
-│   │   │   └── common/        # Shared DTOs, exceptions, response wrappers
-│   │   └── resources/
-│   │       └── application.yml
-│   └── pom.xml
+│   │   ├── main/
+│   │   │   └── java/com/finvault/
+│   │   │       ├── config/
+│   │   │       │   └── SecurityConfig.java        # Spring Security + JWT filter chain
+│   │   │       ├── controller/
+│   │   │       │   ├── AdminController.java        # Admin: KYC approval/rejection
+│   │   │       │   ├── AuthController.java         # Register, login endpoints
+│   │   │       │   ├── KycController.java          # KYC submission & status
+│   │   │       │   ├── UserController.java         # User profile endpoints
+│   │   │       │   └── TestController.java         # Dev/test endpoint
+│   │   │       ├── dto/
+│   │   │       │   ├── AuthResponse.java           # JWT token response wrapper
+│   │   │       │   ├── LoginRequest.java           # Login payload
+│   │   │       │   └── RegisterRequest.java        # Registration payload
+│   │   │       ├── model/
+│   │   │       │   ├── User.java                   # User document (roles, status)
+│   │   │       │   └── Kyc.java                    # KYC document (status, timestamps)
+│   │   │       ├── repository/
+│   │   │       │   ├── UserRepository.java         # MongoDB user queries
+│   │   │       │   └── KycRepository.java          # MongoDB KYC queries
+│   │   │       ├── security/
+│   │   │       │   ├── JwtService.java             # Token generation & validation
+│   │   │       │   ├── JwtAuthenticationFilter.java # Request-level JWT filter
+│   │   │       │   └── CustomUserDetailsService.java # Spring Security user loading
+│   │   │       ├── service/
+│   │   │       │   ├── UserService.java            # User business logic
+│   │   │       │   └── KycService.java             # KYC workflow logic
+│   │   │       └── FinvaultBackendApplication.java # Application entry point
+│   │   ├── resources/
+│   │   └── test/
+│   ├── pom.xml
+│   ├── mvnw / mvnw.cmd
+│   └── HELP.md
 │
-├── finvault-frontend/          # React + Vite (upcoming)
+├── finvault-frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── App.jsx                                 # Root component & routing
+│   │   ├── App.css
+│   │   ├── main.jsx                                # React DOM entry point
+│   │   └── index.css
+│   ├── index.html
+│   ├── package.json
+│   ├── eslint.config.js
+│   └── .gitignore
 │
 └── .gitignore
 ```
@@ -211,12 +238,3 @@ POST   /api/finance/split       Create a group expense split
 **Sumit Kumar**
 Full-Stack Engineer · NIIT StackRoute Certified
 
-[![GitHub](https://img.shields.io/badge/GitHub-developsumitkumar-181717?style=flat&logo=github)](https://github.com/developsumitkumar)
-[![Portfolio](https://img.shields.io/badge/Portfolio-developsumitkumar.github.io-blue?style=flat)](https://developsumitkumar.github.io)
-[![Email](https://img.shields.io/badge/Email-develop.sumitkumar@gmail.com-red?style=flat&logo=gmail)](mailto:develop.sumitkumar@gmail.com)
-
----
-
-<div align="center">
-<sub>Built to learn. Designed to impress. Architected to scale.</sub>
-</div>
