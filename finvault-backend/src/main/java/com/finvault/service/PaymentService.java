@@ -18,6 +18,9 @@ public class PaymentService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LedgerService ledgerService;
+
     public Payment initiatePayment(String userEmail, String receiverName, Double amount, String purpose){
 
         User user = userRepository.findByEmail(userEmail)
@@ -35,7 +38,9 @@ public class PaymentService {
                 payment.setStatus("SUCCESS");
                 payment.setCreatedAt(LocalDateTime.now());
                 
-                return paymentRepository.save(payment);
+                Payment savedPayment = paymentRepository.save(payment);
+                ledgerService.createEntryForPayment(savedPayment);
+                return savedPayment;
         }
             public List <Payment> getMyPayments(String userEmail){
 
