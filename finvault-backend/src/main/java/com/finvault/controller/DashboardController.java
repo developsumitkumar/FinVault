@@ -31,7 +31,7 @@ public class DashboardController {
     public Map<String, Object> getDashboardSummary(Authentication authentication){
 
         String email = authentication.getName();
-        
+
         Map<String, Object> response = new HashMap<>();
 
         response.put("kyc", kycService.getKycStatus(email));
@@ -39,7 +39,7 @@ public class DashboardController {
         response.put("categoryWiseSpending", ledgerService.getCategoryWiseSpending(email));
         response.put("monthlySpending", ledgerService.getMonthlySpending(email));
         response.put("recentPayments", paymentService.getMyPayments(email));
-
+        response.put("recentPayments", paymentService.getRecentPayments(email));
         return response;
 
     }

@@ -50,4 +50,13 @@ public class PaymentService {
 
                             return paymentRepository.findByUserId((user.getId()));  
             }
+
+            public List<Payment> getRecentPayments(String email){
+
+                return getMyPayments(email)
+                        .stream()
+                        .sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                        .limit(5)
+                        .toList();
+            }
 }
