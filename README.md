@@ -1,4 +1,5 @@
 
+
 # FinVault
 
 ### A full-stack fintech platform simulating real-world financial workflows —
@@ -12,9 +13,29 @@
 
 ## Overview
 
-FinVault is a production-style fintech application built from scratch to demonstrate end-to-end backend architecture, compliance-aware design, and modern full-stack development. It mirrors the core workflows found in real financial products — secure onboarding, KYC verification, payment lifecycle management, and a double-entry expense ledger.
+FinVault is a production-style fintech application built from scratch to demonstrate end-to-end backend architecture, compliance-aware design, and modern full-stack development. It mirrors the core workflows found in real financial products — secure onboarding, KYC verification, payment lifecycle management, and a passbook-style expense ledger with group split-bill settlement.
 
 This project is being developed incrementally, with each module building on the last to reflect how fintech systems are actually structured in the industry.
+
+---
+
+## System Flow
+
+```
+User Registration & Login
+        ↓
+  Submit KYC Documents
+        ↓
+  Admin Review & Approval
+        ↓
+  Payment Initiated (with category tag)
+        ↓
+  Ledger Entry created automatically
+        ↓
+  Category-wise Analytics & Summary
+        ↓
+  Split Bill → Settlement → Payment → Ledger
+```
 
 ---
 
@@ -26,21 +47,22 @@ React Frontend (Vite)
         ▼
 Spring Boot API Gateway  ←  JWT Authentication + Role-Based Access
         │
-   ┌────┼────────────┐
-   ▼    ▼            ▼
- KYC  Payments    Finance
-Module  Module     Module
-   │    │            │
-   └────┴────────────┘
+   ┌────┼────────────────┐
+   ▼    ▼                ▼
+ KYC  Payments        Finance
+Module  Module         Module
+   │    │                │
+   │  (gates)       (ledger + splits)
+   └────┴────────────────┘
               │
               ▼
         MongoDB Atlas
-  (users · kyc_docs · transactions
-   ledger_entries · audit_logs)
+  (users · kyc_docs · payments
+   ledger_entries · split_bills)
 ```
 
 **Module dependency chain:**
-KYC verification → gates payment access → payments auto-post to the finance ledger → ledger entries power expense splitting and reports.
+KYC verification → gates payment access → every payment auto-creates a ledger entry → ledger entries power category analytics and split-bill settlement.
 
 ---
 
@@ -59,13 +81,13 @@ KYC verification → gates payment access → payments auto-post to the finance 
 | KYC document submission | ✅ Done |
 | Admin approval / rejection workflow | ✅ Done |
 | Status states: SUBMITTED → IN REVIEW → VERIFIED / REJECTED | ✅ Done |
-| Immutable audit log per status change | ✅ Done |
-| KYC gating on payment access | 🚧 In Progress |
+| KYC gating on payment access | ✅ Done |
 
 ### Payments Module
 | Feature | Status |
 |---|---|
-| Initiate & process mock transactions | 🚧 In Progress |
+| Initiate & process mock transactions | ✅ Done |
+| Payment category tagging | ✅ Done |
 | Payment states: INITIATED → PROCESSING → SUCCESS / FAILED / FLAGGED | 🚧 In Progress |
 | Idempotency key enforcement | ⏳ Planned |
 | Rule-based fraud flagging | ⏳ Planned |
@@ -74,14 +96,16 @@ KYC verification → gates payment access → payments auto-post to the finance 
 ### Finance & Ledger Module
 | Feature | Status |
 |---|---|
-| Double-entry expense ledger | ⏳ Planned |
-| Group expense splitting | ⏳ Planned |
-| Debt settlement with payment record | ⏳ Planned |
-| Monthly category reports | ⏳ Planned |
+| Single-entry expense ledger (passbook model) | ✅ Done |
+| Category-wise expense tracking | ✅ Done |
+| Group expense splitting (multi-user settlement) | ✅ Done |
+| Debt settlement with payment record | ✅ Done |
+| Monthly category reports & summary | 🚧 In Progress |
 
 ### Frontend (React + Vite)
 | Feature | Status |
 |---|---|
+| Project scaffold (Vite + React) | ✅ Done |
 | Auth screens (login / register) | ⏳ Planned |
 | KYC submission form | ⏳ Planned |
 | Admin dashboard | ⏳ Planned |
@@ -101,13 +125,12 @@ KYC verification → gates payment access → payments auto-post to the finance 
 | Frontend | React 18 + Vite |
 | UI components | Material UI (MUI) |
 | API style | RESTful JSON APIs |
-| Build tool | Maven |
+| Build tool | Maven (mvnw) |
 | Version control | Git + GitHub |
 
 ---
 
 ## Project Structure
-
 ```
 FinVault/
 │
@@ -116,31 +139,44 @@ FinVault/
 │   │   ├── main/
 │   │   │   └── java/com/finvault/
 │   │   │       ├── config/
-│   │   │       │   └── SecurityConfig.java        # Spring Security + JWT filter chain
+│   │   │       │   └── SecurityConfig.java              # Spring Security + JWT filter chain
 │   │   │       ├── controller/
-│   │   │       │   ├── AdminController.java        # Admin: KYC approval/rejection
-│   │   │       │   ├── AuthController.java         # Register, login endpoints
-│   │   │       │   ├── KycController.java          # KYC submission & status
-│   │   │       │   ├── UserController.java         # User profile endpoints
-│   │   │       │   └── TestController.java         # Dev/test endpoint
+│   │   │       │   ├── AdminController.java              # Admin: KYC approval/rejection
+│   │   │       │   ├── AuthController.java               # Register, login endpoints
+│   │   │       │   ├── KycController.java                # KYC submission & status
+│   │   │       │   ├── LedgerController.java             # Passbook, summary & category views
+│   │   │       │   ├── PaymentController.java            # Initiate payments, payment history
+│   │   │       │   ├── SplitBillController.java          # Group splits & settlement
+│   │   │       │   ├── UserController.java               # User profile endpoints
+│   │   │       │   └── TestController.java               # Dev/test endpoint
 │   │   │       ├── dto/
-│   │   │       │   ├── AuthResponse.java           # JWT token response wrapper
-│   │   │       │   ├── LoginRequest.java           # Login payload
-│   │   │       │   └── RegisterRequest.java        # Registration payload
+│   │   │       │   ├── AuthResponse.java                 # JWT token response wrapper
+│   │   │       │   ├── LoginRequest.java                 # Login payload
+│   │   │       │   └── RegisterRequest.java              # Registration payload
 │   │   │       ├── model/
-│   │   │       │   ├── User.java                   # User document (roles, status)
-│   │   │       │   └── Kyc.java                    # KYC document (status, timestamps)
+│   │   │       │   ├── Kyc.java                          # KYC document (status, timestamps)
+│   │   │       │   ├── LedgerEntry.java                  # Passbook entry (debit/credit, category)
+│   │   │       │   ├── Payment.java                      # Payment record (amount, status, category)
+│   │   │       │   ├── SplitBill.java                    # Group expense document
+│   │   │       │   ├── SplitBillMember.java              # Per-member share & settlement status
+│   │   │       │   └── User.java                         # User document (roles, KYC status)
 │   │   │       ├── repository/
-│   │   │       │   ├── UserRepository.java         # MongoDB user queries
-│   │   │       │   └── KycRepository.java          # MongoDB KYC queries
+│   │   │       │   ├── KycRepository.java                # MongoDB KYC queries
+│   │   │       │   ├── LedgerRepository.java             # MongoDB ledger entry queries
+│   │   │       │   ├── PaymentRepository.java            # MongoDB payment queries
+│   │   │       │   ├── SplitBillRepository.java          # MongoDB split bill queries
+│   │   │       │   └── UserRepository.java               # MongoDB user queries
 │   │   │       ├── security/
-│   │   │       │   ├── JwtService.java             # Token generation & validation
-│   │   │       │   ├── JwtAuthenticationFilter.java # Request-level JWT filter
-│   │   │       │   └── CustomUserDetailsService.java # Spring Security user loading
+│   │   │       │   ├── CustomUserDetailsService.java     # Spring Security user loading
+│   │   │       │   ├── JwtAuthenticationFilter.java      # Request-level JWT filter
+│   │   │       │   └── JwtService.java                   # Token generation & validation
 │   │   │       ├── service/
-│   │   │       │   ├── UserService.java            # User business logic
-│   │   │       │   └── KycService.java             # KYC workflow logic
-│   │   │       └── FinvaultBackendApplication.java # Application entry point
+│   │   │       │   ├── KycService.java                   # KYC workflow & status transitions
+│   │   │       │   ├── LedgerService.java                # Ledger entry creation & queries
+│   │   │       │   ├── PaymentService.java               # Payment processing & KYC gating
+│   │   │       │   ├── SplitBillService.java             # Split logic & settlement flow
+│   │   │       │   └── UserService.java                  # User business logic
+│   │   │       └── FinvaultBackendApplication.java       # Application entry point
 │   │   ├── resources/
 │   │   └── test/
 │   ├── pom.xml
@@ -151,9 +187,9 @@ FinVault/
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
-│   │   ├── App.jsx                                 # Root component & routing
+│   │   ├── App.jsx                                       # Root component & routing
 │   │   ├── App.css
-│   │   ├── main.jsx                                # React DOM entry point
+│   │   ├── main.jsx                                      # React DOM entry point
 │   │   └── index.css
 │   ├── index.html
 │   ├── package.json
@@ -162,7 +198,6 @@ FinVault/
 │
 └── .gitignore
 ```
-
 ---
 
 ## Getting Started
@@ -170,64 +205,101 @@ FinVault/
 ### Prerequisites
 
 - Java 17+
-- Maven 3.8+
+- Maven (or use the included `mvnw` wrapper)
 - MongoDB Atlas account (or local MongoDB)
-- Node.js 18+ *(for frontend, when available)*
+- Node.js 18+ *(for frontend)*
 
 ### Backend Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/developsumitkumar/finvault.git
-cd finvault/finvault-backend
+git clone https://github.com/developsumitkumar/FinVault.git
+cd FinVault/finvault-backend
 
-# Set your MongoDB URI in application.yml
+# Configure MongoDB URI in src/main/resources/application.yml
 # spring.data.mongodb.uri=mongodb+srv://<user>:<pass>@cluster.mongodb.net/finvault
 
 # Run the backend
 ./mvnw spring-boot:run
 ```
 
-The API will start at `http://localhost:8080`.
+The API will be available at `http://localhost:8080`.
 
-### API Quick Reference
+### Frontend Setup
 
+```bash
+cd FinVault/finvault-frontend
+npm install
+npm run dev
 ```
-POST   /api/auth/register       Register a new user
-POST   /api/auth/login          Login and receive JWT
 
-POST   /api/kyc/submit          Submit KYC documents
-GET    /api/kyc/status          Get current KYC status
-PUT    /api/admin/kyc/{id}      Approve or reject KYC (ADMIN only)
+The frontend will be available at `http://localhost:5173`.
 
-POST   /api/payments/initiate   Start a payment
-GET    /api/payments/history    View transaction history
+---
 
-GET    /api/finance/ledger      View expense ledger
-POST   /api/finance/split       Create a group expense split
+## API Reference
+
+### Auth
+```
+POST   /api/auth/register               Register a new user
+POST   /api/auth/login                  Login and receive JWT
+```
+
+### KYC
+```
+POST   /api/kyc/submit                  Submit KYC documents (USER)
+GET    /api/kyc/status                  Get own KYC status (USER)
+```
+
+### Admin
+```
+POST   /api/admin/kyc/approve           Approve a KYC application (ADMIN)
+POST   /api/admin/kyc/reject            Reject a KYC application (ADMIN)
+```
+
+### Payments
+```
+POST   /api/payments/initiate           Initiate a payment (KYC-gated)
+GET    /api/payments/my                 View own payment history
+```
+
+### Ledger
+```
+GET    /api/ledger/my                   View full passbook / ledger
+GET    /api/ledger/summary              Total credits & debits summary
+GET    /api/ledger/category             Category-wise expense breakdown
+```
+
+### Split Bills
+```
+POST   /api/split-bills                 Create a group split expense
+GET    /api/split-bills/my             View all splits involving you
+POST   /api/split-bills/{id}/settle    Settle your share (creates payment + ledger entry)
 ```
 
 ---
 
 ## Key Concepts Demonstrated
 
-- **JWT authentication** — stateless auth with role claims embedded in the token
-- **Role-based access control** — USER and ADMIN roles enforced at the controller level
-- **KYC compliance workflow** — status state machine with immutable audit trail
-- **Idempotency** — preventing duplicate payment records via idempotency keys
-- **Double-entry ledger accounting** — debit/credit entries underpinning expense tracking
-- **REST API design** — consistent response envelopes, error handling, HTTP semantics
+- **JWT authentication** — stateless auth with role claims embedded in the token, validated on every request via `JwtAuthenticationFilter`
+- **Role-based access control** — `USER` and `ADMIN` roles enforced via Spring Security at the controller level
+- **KYC compliance workflow** — status state machine (SUBMITTED → IN REVIEW → VERIFIED / REJECTED) with admin-controlled transitions
+- **KYC gating** — payment APIs blocked for users whose KYC is not verified
+- **Passbook-style ledger** — every payment automatically generates a ledger entry for full transaction history
+- **Category-based analytics** — expenses tagged by category and queryable via summary and breakdown endpoints
+- **Split-bill settlement** — multi-user expense splitting where settlement triggers a real payment and ledger entry
+- **Layered architecture** — clean separation of controller → service → repository → model across all modules
 
 ---
 
 ## Roadmap
 
 ```
-[✅] Phase 1 — Auth & JWT
-[✅] Phase 2 — KYC module + admin workflow
-[🚧] Phase 3 — Payments module + KYC gating
-[⏳] Phase 4 — Ledger, splits & reconciliation
-[⏳] Phase 5 — React frontend
+[✅] Phase 1 — Auth & JWT (login, register, role-based access)
+[✅] Phase 2 — KYC module (submission, admin approval, gating)
+[✅] Phase 3 — Payments module + ledger + split-bill settlement
+[🚧] Phase 4 — Advanced analytics + frontend (React + MUI)
+[⏳] Phase 5 — Fraud detection & idempotency
 [⏳] Phase 6 — Deployment (Railway / Render)
 ```
 
@@ -237,4 +309,3 @@ POST   /api/finance/split       Create a group expense split
 
 **Sumit Kumar**
 Full-Stack Engineer · NIIT StackRoute Certified
-
