@@ -1,6 +1,7 @@
 package com.finvault.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,6 +70,24 @@ public class LedgerService {
                                 LedgerEntry::getCategory,
                                 Collectors.summingDouble(LedgerEntry::getAmount)
                                     
+                                ));
+        }
+
+        public Map<String, Double> getMonthlySpending(String email) {
+
+            User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+                        DateTimeFormatter formatter =  DateTimeFormatter.ofPattern("yyyy-MM");
+
+                        return ledgerRepository.findByUserId((user.getId()))
+                                .stream()
+                                .filter(entry -> "DEBIT".equals(entry.getType()))
+                                .collect(Collectors.groupingBy(
+                                    entry -> entry.getCreatedAt().format(formatter),
+                                    Collectors.summingDouble(LedgerEntry::getAmount)
+                        
+
                                 ));
         }
 }

@@ -42,4 +42,10 @@ public class LedgerController {
 
         return ledgerService.getCategoryWiseSpending(authentication.getName());
     }
+
+    @GetMapping("/monthly")
+    public Map<String, Double> getMonthlySpending(Authentication authentication){
+
+        return ledgerService.getMonthlySpending(authentication.getName());
+    }
 }
