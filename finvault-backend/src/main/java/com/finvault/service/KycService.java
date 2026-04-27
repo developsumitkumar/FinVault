@@ -1,6 +1,5 @@
 package com.finvault.service;
 
-import org.bson.types.ObjectId;
 import com.finvault.model.Kyc;
 import com.finvault.model.User;
 import com.finvault.repository.KycRepository;
@@ -42,6 +41,7 @@ public class KycService {
     return kycRepository.findByUserId(user.getId())
             .orElseThrow(() -> new RuntimeException("KYC not submitted"));
 }
+///////////approve
    public Kyc approveKyc(String kycId) {
 
     Kyc kyc = kycRepository.findById(kycId)
@@ -57,6 +57,9 @@ public class KycService {
 
     return kycRepository.save(kyc);
 }
+
+
+//////////reject
     public Kyc rejectKyc(String kycId, String reason){
         
         Kyc kyc = kycRepository.findById(kycId)
@@ -64,8 +67,14 @@ public class KycService {
                     kyc.setStatus("REJECTED");
                     kyc.setRemarks(reason);
 
-
-                    return kycRepository.save(kyc);
+            User user = userRepository.findById(kyc.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User Not Found."));
+                    
+                    user.setKycStatus("REJECTED");
+                    userRepository.save(user);
+                    
+                    
+        return kycRepository.save(kyc);
     }
 
 }

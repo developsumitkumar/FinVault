@@ -2,6 +2,8 @@ package com.finvault.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ public class LedgerService {
         entry.setPaymentId(payment.getId());
         entry.setType("DEBIT");
         entry.setAmount(payment.getAmount());
-        entry.setCategory("PAYMENT");
+        entry.setCategory(payment.getCategory());
         entry.setDescription("Payment to "+ payment.getReceiverName());
         entry.setCreatedAt(LocalDateTime.now());
 
@@ -54,5 +56,19 @@ public class LedgerService {
                                 .mapToDouble(LedgerEntry::getAmount)
                                 .sum();
         }
-    
+
+        public Map<String,Double> getCategoryWiseSpending(String email){
+
+            User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User Not Found."));
+
+                        return ledgerRepository.findByUserId(user.getId())
+                                .stream()
+                                .filter(entry -> "DEBIT".equals(entry.getType()))
+                                .collect(Collectors.groupingBy(
+                                LedgerEntry::getCategory,
+                                Collectors.summingDouble(LedgerEntry::getAmount)
+                                    
+                                ));
+        }
 }

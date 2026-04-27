@@ -29,8 +29,9 @@ public class PaymentController {
         String receiverName = request.get("receiverName").toString();
         Double amount = Double.valueOf(request.get("amount").toString());
         String purpose = request.get("purpose").toString();
+        String category = request.get("category").toString();
 
-        return paymentService.initiatePayment(email, receiverName, amount, purpose);
+        return paymentService.initiatePayment(email, receiverName, amount, purpose, category);
 
     }
     @GetMapping("/my")

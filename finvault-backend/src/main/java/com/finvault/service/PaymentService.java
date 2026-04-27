@@ -21,7 +21,7 @@ public class PaymentService {
     @Autowired
     private LedgerService ledgerService;
 
-    public Payment initiatePayment(String userEmail, String receiverName, Double amount, String purpose){
+    public Payment initiatePayment(String userEmail, String receiverName, Double amount, String purpose, String category){
 
         User user = userRepository.findByEmail(userEmail)
                     .orElseThrow(() -> new RuntimeException("User not found."));
@@ -35,6 +35,7 @@ public class PaymentService {
                 payment.setReceiverName(receiverName);
                 payment.setAmount(amount);     
                 payment.setPurpose(purpose);
+                payment.setCategory(category);
                 payment.setStatus("SUCCESS");
                 payment.setCreatedAt(LocalDateTime.now());
                 

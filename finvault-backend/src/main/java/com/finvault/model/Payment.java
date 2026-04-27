@@ -16,6 +16,8 @@ public class Payment {
     private String purpose;
     private String status;
     private LocalDateTime createdAt;
+    private String category;
+
     public String getId() {
         return id;
     }
@@ -58,7 +60,13 @@ public class Payment {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    public String getCategory() {
+        return category;
+    }
+    public void setCategory(String category) {
+        this.category = category;
+    }
     
-
+    
     
 }

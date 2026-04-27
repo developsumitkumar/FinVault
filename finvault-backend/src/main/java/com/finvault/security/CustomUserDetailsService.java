@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Collections;
+
 
  @Service
  public class CustomUserDetailsService implements UserDetailsService{

@@ -1,6 +1,7 @@
 package com.finvault.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +35,11 @@ public class LedgerController {
         Double totalSpent = ledgerService.getTotalSpent(authentication.getName());
         
         return Map.of("totalSpent", totalSpent);
+    }
+
+    @GetMapping("/category")
+    public Map<String, Double> getCategoryWise(Authentication authentication){
+
+        return ledgerService.getCategoryWiseSpending(authentication.getName());
     }
 }
