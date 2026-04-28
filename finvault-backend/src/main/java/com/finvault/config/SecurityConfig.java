@@ -18,27 +18,25 @@ public class SecurityConfig {
    @Autowired
    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-   @Bean
-   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
-      {
-    http 
-    .csrf(csrf -> csrf.disable())
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    .authorizeHttpRequests(auth-> auth
+    http
+        .cors(cors -> {})
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/test/**").permitAll()
+            .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-     .requestMatchers("/api/test/**").permitAll()
-     .requestMatchers("/api/test/++").permitAll()
-     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-
-            .anyRequest().permitAll()
-         )
-         .sessionManagement(session -> 
-                              session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                           )                    
-         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-               return http.build();
-      }      
+    return http.build();
+}    
 
       @Bean 
       public AuthenticationManager authenticationManager (AuthenticationConfiguration config) throws Exception{
@@ -46,6 +44,7 @@ public class SecurityConfig {
          return config.getAuthenticationManager();
          }
    
+         
 
 }
 
